@@ -15,7 +15,19 @@ function getRequestValuesFromHttpFunctionEvent ({ event }) {
 
   const remoteAddress = headers['x-forwarded-for']
 
-  const body = context.rawBody
+  let body
+
+  try {
+    const content = headers['content-type']
+    if (content.startsWith('multipart/form-data')) {
+      body = context.body
+    } else {
+      body = context.rawBody
+    }
+  } catch (error) {
+    body = context.rawBody
+  }
+
   if (body) {
     headers['content-length'] = Buffer.byteLength(body, 'utf8')
   }
